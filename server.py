@@ -1,8 +1,11 @@
 from gevent import monkey
 monkey.patch_all()
 
-from flask import Flask, render_template, session, request
+from flask import Flask, render_template, session, request, flash, session, redirect
 from flask.ext.socketio import SocketIO, emit, join_room, leave_room
+from model import User, Country, Language, Language_desired, Game, Conversation, session as dbsession 
+import jinja2
+
 
 app = Flask(__name__)
 app.debug = True
@@ -16,16 +19,34 @@ socketio = SocketIO(app)
 def home():
     return render_template('index.html')
 
-# @app.route('/fetchimg')
-# def fetchimg():
-	
+@app.route('/fetch_game_card')
+def fetch_game_card():
 
-	
+	#query for count of card type (e.g. 'taboo')
+	#mimport random, choose a random number, use that number to query for a card within that group
+
+	taboocard1 = dbsession.query(Game).get(1)
+
+
+	return taboocard1
+
+
+#get the data passed from the client
 @socketio.on("new_msg", namespace="/chat")
 def handle_new_msg(msg):
 	print "hello", msg
+	#send the data to all cients, via the id_tag , "msg_received"
 	emit("msg_received", msg, broadcast=True)
 
+
+
+
+#on button click, send url back to client
+@socketio.on("put_first_img", namespace="/chat")
+def put_first_img(img):
+	taboocard1 = fetch_game_card()
+	#send the data to all cients, via the id_tag , "msg_received"
+	emit("img_url", taboocard1.filename, broadcast=True)
 
 
 

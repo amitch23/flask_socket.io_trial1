@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Flask-SocketIO Test</title>
+    <title>Babel Chat Game</title>
     <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
 
@@ -9,9 +9,11 @@
 
 </head>
 <body>
-    <h1>Flask-SocketIO Test</h1>
+    <h1>Babelchat Game</h1>
 
     <div id="chat_box">
+    <img id="img-placeholder" src=""></img>
+
     </div>
 
         <form action="/">
@@ -20,30 +22,57 @@
 
         </form>
 
+
+
  <script type="text/javascript" charset="utf-8">
        
         $(document).ready(function(){
             namespace = '/chat'; // change to an empty string to use the global namespace
 
-            // the socket.io documentation recommends sending an explicit package upon connection
-            // this is specially important when using the global namespace
+            //signal to server to create socket
             var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
 
+           
+            //on connect, emit "id_tag" and data to pass to the server file with same id_tag
             socket.on('connect', function() {
-                socket.emit('new_msg', {data: 'You\'re connected!'});
+                socket.emit('new_msg', {data: "Hey you are connected"});
             });
 
+            //receive the message from the server via id-tag 'msg_received' and add the data as a list element to the chat box div 
             socket.on("msg_received", function(msg){
                 $("#chat_box").append("<li>" + msg.data + "</li>");
             });
     
 
+            //on button click, send data to server from the input box 
+            // $("#btn").click(function(e) {
+            //  socket.emit("new_msg", {data: $("#input").val()});
+
+            // });
+
+
+
+
+
+            //event listener on button click to get url from server
             $("#btn").click(function(e) {
-                console.log($("#input").val());
-
-                socket.emit("new_msg", {data: $("#input").val()});
-
+             socket.emit("put_first_img", {data: "imageclick"});
             });
+
+            //get url from "put_first_img" function and input src into the img-placebholder
+            socket.on("img_url", function(msg){
+                console.log("hello")
+                $("#img-placeholder").attr("src", msg);
+            });
+    
+
+
+            // $("#btn").click(function(e) {
+            //     console.log($("#input").val());
+
+            //     socket.emit("new_msg", {data: $("#input").val()});
+
+            // });
       
         });
 
